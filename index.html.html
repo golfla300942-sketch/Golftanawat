@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="เควสประจำวัน">
+<meta name="theme-color" content="#0B0E1A">
+<title>เควสประจำวัน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;500;600;700;800&family=Orbitron:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0E1A;
+    --bg2:#141a30;
+    --bg3:#1c2342;
+    --ink:#EDEFFB;
+    --dim:#8A90B8;
+    --dawn:#FFC93C;
+    --day:#4CC9F0;
+    --dusk:#9D4EDD;
+    --night:#F72585;
+    --gold:#FFC93C;
+    --line: rgba(255,255,255,0.09);
+    --glow-cyan: 0 0 14px rgba(76,201,240,0.55);
+    --glow-gold: 0 0 14px rgba(255,201,60,0.55);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(157,78,221,0.16), transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(76,201,240,0.14), transparent 40%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Kanit', sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .num{font-family:'Orbitron', sans-serif;}
+  .app{
+    max-width:480px;
+    margin:0 auto;
+    min-height:100vh;
+    padding:18px 16px 100px;
+    position:relative;
+  }
+  .top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .streak-badge{
+    display:none;
+    align-items:center;
+    gap:5px;
+    padding:6px 12px;
+    border-radius:20px;
+    background:linear-gradient(135deg, rgba(255,201,60,0.18), rgba(255,201,60,0.05));
+    border:1.5px solid rgba(255,201,60,0.4);
+    color:var(--gold);
+    font-weight:700;
+    font-size:13px;
+  }
+  .streak-badge .num{font-size:14px;}
+  .stats-btn{
+    width:38px;height:38px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--bg2);
+    color:var(--gold);
+    font-size:17px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 rgba(0,0,0,0);
+  }
+  .stats-btn:active{transform:scale(0.94);}
+
+  .level-card{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    background:linear-gradient(135deg, var(--bg2), var(--bg3));
+    border:1.5px solid var(--line);
+    border-radius:18px;
+    padding:14px 16px;
+    margin-bottom:16px;
+    position:relative;
+    overflow:hidden;
+  }
+  .level-card::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 0% 0%, rgba(157,78,221,0.25), transparent 55%);
+    pointer-events:none;
+  }
+  .level-orb{
+    width:52px;height:52px;
+    border-radius:50%;
+    flex-shrink:0;
+    background:radial-gradient(circle at 35% 30%, #9D4EDD, #4CC9F0 70%);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Orbitron', sans-serif;
+    font-weight:800;
+    font-size:19px;
+    color:#fff;
+    box-shadow:0 0 18px rgba(157,78,221,0.55), inset 0 0 8px rgba(255,255,255,0.3);
+    position:relative;
+    z-index:1;
+  }
+  .level-body{flex:1;min-width:0;position:relative;z-index:1;}
+  .level-name{
+    font-size:13.5px;
+    font-weight:700;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .xp-track{
+    height:8px;
+    border-radius:5px;
+    background:rgba(255,255,255,0.08);
+    overflow:hidden;
+    margin-bottom:5px;
+  }
+  .xp-fill{
+    height:100%;
+    width:0%;
+    border-radius:5px;
+    background:linear-gradient(90deg, #4CC9F0, #9D4EDD);
+    box-shadow:0 0 8px rgba(76,201,240,0.6);
+    transition:width .5s ease;
+  }
+  .xp-label{
+    font-family:'Orbitron', sans-serif;
+    font-size:10.5px;
+    color:var(--dim);
+    letter-spacing:0.03em;
+  }
+
+  .date-row{
+    text-align:center;
+    margin-bottom:4px;
+  }
+  .date-label{
+    font-size:12px;
+    letter-spacing:0.08em;
+    color:var(--dim);
+    font-weight:500;
+  }
+  .greeting{
+    font-family:'Kanit', sans-serif;
+    font-weight:700;
+    font-size:20px;
+    color:var(--ink);
+    margin-top:3px;
+  }
+
+  /* neon power-ring signature element */
+  .arc-wrap{
+    position:relative;
+    margin:10px auto 6px;
+    width:280px;
+    height:150px;
+  }
+  .arc-wrap svg{width:100%;height:100%;overflow:visible;}
+  .arc-track{fill:none;stroke:rgba(255,255,255,0.08);stroke-width:10;}
+  .arc-fill{fill:none;stroke-width:10;stroke-linecap:round;transition:stroke-dashoffset .6s ease;filter:drop-shadow(0 0 6px rgba(76,201,240,0.7));}
+  .sun-dot{transition:offset-distance .6s ease;filter:drop-shadow(0 0 6px rgba(255,255,255,0.9));}
+  .arc-center{
+    position:absolute;
+    left:50%;top:70%;
+    transform:translate(-50%,-50%);
+    text-align:center;
+  }
+  .arc-pct{
+    font-family:'Orbitron', sans-serif;
+    font-weight:800;
+    font-size:36px;
+    color:var(--ink);
+    line-height:1;
+    text-shadow:0 0 16px rgba(76,201,240,0.5);
+  }
+  .arc-sub{
+    font-size:12px;
+    color:var(--dim);
+    margin-top:5px;
+    font-weight:500;
+  }
+
+  .add-form{
+    display:flex;
+    gap:8px;
+    margin:24px 0 8px;
+  }
+  .add-form input[type=text]{
+    flex:1;
+    padding:13px 14px;
+    border-radius:12px;
+    border:1.5px solid var(--line);
+    background:var(--bg2);
+    font-family:inherit;
+    font-size:15px;
+    color:var(--ink);
+    outline:none;
+  }
+  .add-form input[type=text]::placeholder{color:var(--dim);}
+  .add-form input[type=text]:focus{border-color:var(--day);box-shadow:0 0 0 3px rgba(76,201,240,0.15);}
+  .add-form button{
+    width:48px;
+    border-radius:12px;
+    border:none;
+    background:linear-gradient(135deg, #4CC9F0, #9D4EDD);
+    color:#fff;
+    font-size:22px;
+    cursor:pointer;
+    line-height:1;
+    box-shadow:0 0 14px rgba(157,78,221,0.4);
+  }
+  .add-form button:active{transform:scale(0.96);}
+
+  .goal-toggle{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    margin:0 0 12px;
+    font-size:12.5px;
+    color:var(--dusk);
+    background:none;
+    border:none;
+    cursor:pointer;
+    padding:2px 2px;
+    font-weight:600;
+  }
+  .goal-fields{
+    display:none;
+    gap:8px;
+    margin:0 0 14px;
+  }
+  .goal-fields.open{display:flex;}
+  .goal-fields input{
+    border-radius:10px;
+    border:1.5px solid var(--line);
+    background:var(--bg2);
+    font-family:inherit;
+    font-size:14px;
+    color:var(--ink);
+    padding:9px 10px;
+    outline:none;
+  }
+  .goal-fields input::placeholder{color:var(--dim);}
+  .goal-fields input:focus{border-color:var(--dusk);}
+  .goal-fields .g-target{width:68px;text-align:center;flex-shrink:0;}
+  .goal-fields .g-unit{flex:1;min-width:0;}
+
+  .period-picker{
+    display:flex;
+    gap:6px;
+    margin-bottom:20px;
+  }
+  .period-chip{
+    flex:1;
+    padding:9px 0;
+    text-align:center;
+    border-radius:10px;
+    font-size:12.5px;
+    font-weight:600;
+    border:1.5px solid var(--line);
+    background:var(--bg2);
+    color:var(--dim);
+    cursor:pointer;
+    opacity:0.7;
+    transition:all .15s ease;
+  }
+  .period-chip.active{
+    opacity:1;
+    color:#0B0E1A;
+    border-color:transparent;
+  }
+  .period-chip[data-period="เช้า"].active{background:var(--dawn);box-shadow:var(--glow-gold);}
+  .period-chip[data-period="บ่าย"].active{background:var(--day);box-shadow:var(--glow-cyan);color:#0B0E1A;}
+  .period-chip[data-period="เย็น"].active{background:var(--dusk);color:#fff;box-shadow:0 0 14px rgba(157,78,221,0.5);}
+  .period-chip[data-period="กลางคืน"].active{background:var(--night);color:#fff;box-shadow:0 0 14px rgba(247,37,133,0.5);}
+
+  .section{margin-bottom:20px;}
+  .section-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+    padding-left:2px;
+  }
+  .section-dot{width:8px;height:8px;border-radius:50%;}
+  .section-dot.เช้า{background:var(--dawn);box-shadow:0 0 8px rgba(255,201,60,0.7);}
+  .section-dot.บ่าย{background:var(--day);box-shadow:0 0 8px rgba(76,201,240,0.7);}
+  .section-dot.เย็น{background:var(--dusk);box-shadow:0 0 8px rgba(157,78,221,0.7);}
+  .section-dot.กลางคืน{background:var(--night);box-shadow:0 0 8px rgba(247,37,133,0.7);}
+  .section-title{
+    font-size:13px;
+    font-weight:700;
+    letter-spacing:0.04em;
+    color:var(--ink);
+  }
+  .section-count{
+    font-family:'Orbitron', sans-serif;
+    font-size:11px;
+    color:var(--dim);
+    margin-left:auto;
+  }
+
+  .item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background:var(--bg2);
+    border-radius:14px;
+    padding:13px 14px;
+    margin-bottom:9px;
+    border:1.5px solid var(--line);
+    border-left-width:4px;
+    transition:opacity .2s ease;
+  }
+  .section .item{border-left-color:var(--line);}
+  .section:has(.section-dot.เช้า) .item{border-left-color:rgba(255,201,60,0.55);}
+  .section:has(.section-dot.บ่าย) .item{border-left-color:rgba(76,201,240,0.55);}
+  .section:has(.section-dot.เย็น) .item{border-left-color:rgba(157,78,221,0.55);}
+  .section:has(.section-dot.กลางคืน) .item{border-left-color:rgba(247,37,133,0.55);}
+  .item.done{opacity:0.45;}
+  .item.done .item-name{text-decoration:line-through;}
+  .checkbox{
+    width:23px;height:23px;
+    border-radius:7px;
+    border:2px solid var(--line);
+    flex-shrink:0;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--bg3);
+    transition:all .15s ease;
+  }
+  .checkbox.checked{
+    background:linear-gradient(135deg, #4CC9F0, #9D4EDD);
+    border-color:transparent;
+    box-shadow:0 0 12px rgba(157,78,221,0.6);
+  }
+  .checkbox.checked svg{display:block;}
+  .checkbox svg{display:none;width:13px;height:13px;}
+  .item-name{
+    flex:1;
+    font-size:15px;
+    color:var(--ink);
+    font-weight:500;
+  }
+  .stepper{
+    display:flex;
+    align-items:center;
+    gap:7px;
+  }
+  .step-btn{
+    width:26px;height:26px;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:var(--bg3);
+    color:var(--ink);
+    font-size:15px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .step-btn:active{transform:scale(0.9);}
+  .step-value{
+    font-family:'Orbitron', sans-serif;
+    font-size:11.5px;
+    font-weight:700;
+    color:var(--ink);
+    white-space:nowrap;
+    min-width:58px;
+    text-align:center;
+  }
+  .step-value .step-unit{
+    font-family:'Kanit', sans-serif;
+    font-weight:500;
+    opacity:0.55;
+    margin-left:2px;
+  }
+  .item.goal.done .step-value{color:var(--day);}
+  .check-mark{
+    width:23px;height:23px;
+    border-radius:7px;
+    border:2px solid var(--line);
+    flex-shrink:0;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--bg3);
+    transition:all .15s ease;
+  }
+  .check-mark.checked{
+    background:linear-gradient(135deg, #4CC9F0, #9D4EDD);
+    border-color:transparent;
+    box-shadow:0 0 12px rgba(157,78,221,0.6);
+  }
+  .check-mark.checked svg{display:block;}
+  .check-mark svg{display:none;width:13px;height:13px;}
+  .del-btn{
+    background:none;border:none;
+    color:var(--dim);
+    opacity:0.6;
+    font-size:18px;
+    cursor:pointer;
+    padding:2px 4px;
+  }
+  .del-btn:active{opacity:1;}
+
+  .empty{
+    text-align:center;
+    padding:40px 20px;
+    color:var(--dim);
+    font-size:14px;
+  }
+  .empty-title{
+    font-family:'Kanit', sans-serif;
+    font-size:18px;
+    font-weight:700;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+
+  .suggest-btn{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:13px 0;
+    margin-bottom:22px;
+    border-radius:12px;
+    border:1.5px dashed rgba(157,78,221,0.5);
+    background:rgba(157,78,221,0.08);
+    color:#C9A6F5;
+    font-family:inherit;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .suggest-btn:active{transform:scale(0.98);}
+
+  .sheet-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(3,5,14,0.65);
+    z-index:50;
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+  }
+  .sheet-overlay.open{display:flex;}
+  .sheet{
+    width:100%;
+    max-width:480px;
+    height:74vh;
+    max-height:640px;
+    background:linear-gradient(180deg, var(--bg2), var(--bg));
+    border:1.5px solid var(--line);
+    border-bottom:none;
+    border-radius:22px 22px 0 0;
+    padding:16px 16px 20px;
+    display:flex;
+    flex-direction:column;
+    animation:sheetUp .25s ease;
+    box-shadow:0 -10px 40px rgba(0,0,0,0.5);
+  }
+  @keyframes sheetUp{from{transform:translateY(24px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .sheet-handle{
+    width:36px;height:4px;
+    background:var(--line);
+    border-radius:2px;
+    margin:0 auto 12px;
+  }
+  .sheet-head{
+    display:flex;
+    align-items:center;
+    margin-bottom:10px;
+  }
+  .sheet-title{
+    font-family:'Kanit', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    color:var(--ink);
+  }
+  .sheet-close{
+    margin-left:auto;
+    background:none;
+    border:none;
+    font-size:20px;
+    color:var(--dim);
+    cursor:pointer;
+  }
+  .sheet-list{
+    overflow-y:auto;
+    padding-right:2px;
+  }
+  .sheet-body{
+    flex:1;
+    min-height:0;
+    min-width:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-right:2px;
+  }
+  .suggest-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:11px 4px;
+    border-bottom:1px solid var(--line);
+  }
+  .suggest-icon{
+    width:38px;height:38px;
+    border-radius:11px;
+    background:var(--bg3);
+    border:1.5px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    font-size:19px;
+    flex-shrink:0;
+  }
+  .suggest-text{flex:1;min-width:0;}
+  .suggest-name{
+    font-size:14.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .suggest-desc{
+    font-size:12px;
+    color:var(--dim);
+    margin-top:1px;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .suggest-add{
+    width:32px;height:32px;
+    border-radius:50%;
+    border:none;
+    background:linear-gradient(135deg, #4CC9F0, #9D4EDD);
+    color:#fff;
+    font-size:18px;
+    flex-shrink:0;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 10px rgba(157,78,221,0.5);
+  }
+  .suggest-add.added{
+    background:var(--bg3);
+    border:1.5px solid var(--line);
+    color:var(--day);
+    font-size:15px;
+    box-shadow:none;
+  }
+  .suggest-add:active{transform:scale(0.92);}
+
+  .month-nav{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .month-nav button{
+    width:27px;height:27px;
+    border-radius:8px;
+    border:1.5px solid var(--line);
+    background:var(--bg3);
+    color:var(--ink);
+    font-size:13px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    flex-shrink:0;
+  }
+  .month-label{
+    flex:1;
+    text-align:center;
+    font-family:'Kanit', sans-serif;
+    font-weight:700;
+    font-size:14px;
+    color:var(--ink);
+  }
+  .stats-summary{
+    display:flex;
+    justify-content:space-around;
+    text-align:center;
+    padding:8px 4px 12px;
+    border-bottom:1px solid var(--line);
+    margin-bottom:10px;
+  }
+  .stat-num{
+    font-family:'Orbitron', sans-serif;
+    font-weight:800;
+    font-size:18px;
+    color:var(--ink);
+    text-shadow:0 0 10px rgba(76,201,240,0.4);
+  }
+  .stat-label{
+    font-size:10px;
+    color:var(--dim);
+    margin-top:2px;
+  }
+  .cal-grid{
+    display:grid;
+    grid-template-columns:repeat(7, minmax(0,1fr));
+    gap:4px;
+  }
+  .cal-daylabel{
+    text-align:center;
+    font-size:10px;
+    font-weight:600;
+    color:var(--dim);
+    padding-bottom:3px;
+  }
+  .cal-cell{
+    aspect-ratio:1;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Orbitron', sans-serif;
+    font-size:11px;
+    font-weight:700;
+    color:var(--ink);
+    border:1.5px solid var(--line);
+    background:var(--bg3);
+    cursor:pointer;
+    position:relative;
+  }
+  .cal-cell.empty{visibility:hidden;cursor:default;}
+  .cal-cell.today{border-color:var(--day);border-width:2px;box-shadow:0 0 8px rgba(76,201,240,0.5);}
+  .cal-cell.future{opacity:0.3;cursor:default;}
+  .cal-hint{
+    text-align:center;
+    font-size:11px;
+    color:var(--dim);
+    margin-top:10px;
+  }
+
+  .stats-main{
+    display:flex;
+    flex-direction:column;
+    flex:1;
+    min-height:0;
+    min-width:0;
+  }
+  .stat-tabs{
+    display:flex;
+    gap:6px;
+    margin-bottom:10px;
+    background:var(--bg3);
+    border-radius:11px;
+    padding:3px;
+  }
+  .stat-tab{
+    flex:1;
+    border:none;
+    background:none;
+    padding:8px 0;
+    border-radius:9px;
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--dim);
+    cursor:pointer;
+  }
+  .stat-tab.active{
+    background:linear-gradient(135deg, #4CC9F0, #9D4EDD);
+    color:#fff;
+    box-shadow:0 0 10px rgba(157,78,221,0.4);
+  }
+
+  .activity-row{
+    padding:11px 2px;
+    border-bottom:1px solid var(--line);
+  }
+  .activity-top{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:6px;
+  }
+  .activity-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .activity-name{
+    flex:1;
+    font-size:13.5px;
+    font-weight:600;
+    color:var(--ink);
+  }
+  .activity-pct{
+    font-family:'Orbitron', sans-serif;
+    font-size:13px;
+    font-weight:700;
+    color:var(--day);
+  }
+  .activity-bar{
+    height:6px;
+    border-radius:4px;
+    background:var(--bg3);
+    overflow:hidden;
+    margin-bottom:5px;
+  }
+  .activity-bar-fill{
+    height:100%;
+    background:linear-gradient(90deg, #4CC9F0, #9D4EDD);
+    border-radius:4px;
+    box-shadow:0 0 6px rgba(76,201,240,0.5);
+  }
+  .activity-count{
+    font-size:11px;
+    color:var(--dim);
+  }
+
+  .day-view{display:none;flex-direction:column;flex:1;min-height:0;}
+  .day-view-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:8px;
+  }
+  .day-back{
+    background:none;
+    border:none;
+    font-size:15px;
+    color:var(--day);
+    font-weight:700;
+    cursor:pointer;
+    padding:2px 2px;
+  }
+  .day-view-title{
+    font-family:'Kanit', sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    color:var(--ink);
+  }
+  .day-view-summary{
+    font-family:'Orbitron', sans-serif;
+    font-size:12px;
+    color:var(--day);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .day-view-list{
+    flex:1;
+    min-height:0;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .day-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:9px 4px;
+    border-bottom:1px solid var(--line);
+  }
+  .day-item-dot{
+    width:16px;height:16px;
+    border-radius:6px;
+    border:2px solid var(--line);
+    flex-shrink:0;
+  }
+  .day-item-dot.ok{
+    background:linear-gradient(135deg, #4CC9F0, #9D4EDD);
+    border-color:transparent;
+    box-shadow:0 0 8px rgba(157,78,221,0.5);
+  }
+  .day-item-name{
+    flex:1;
+    font-size:13.5px;
+    color:var(--ink);
+  }
+  .day-item.done .day-item-name{opacity:0.55;}
+  .day-item-status{
+    font-family:'Orbitron', sans-serif;
+    font-size:10.5px;
+    color:var(--dim);
+    flex-shrink:0;
+  }
+  .day-empty{
+    text-align:center;
+    padding:30px 10px;
+    font-size:13px;
+    color:var(--dim);
+  }
+
+  .trend-block{margin-bottom:22px;}
+  .trend-block-title{
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--dim);
+    letter-spacing:0.03em;
+    margin-bottom:12px;
+  }
+
+  .donut-wrap{
+    display:flex;
+    align-items:center;
+    gap:18px;
+    background:var(--bg3);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:16px;
+  }
+  .donut-svg{width:96px;height:96px;flex-shrink:0;}
+  .donut-svg circle{transition:stroke-dasharray .6s ease;}
+  .donut-legend{flex:1;min-width:0;}
+  .legend-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:13px;
+    color:var(--ink);
+    margin-bottom:8px;
+    font-weight:600;
+  }
+  .legend-row .num{margin-left:auto;font-size:14px;}
+  .legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+  .legend-dot.ok{background:var(--day);box-shadow:0 0 6px rgba(76,201,240,0.7);}
+  .legend-dot.fail{background:var(--night);box-shadow:0 0 6px rgba(247,37,133,0.5);}
+
+  .chart-wrap{
+    background:var(--bg3);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:14px 12px 8px;
+  }
+  .chart-wrap svg{width:100%;height:auto;overflow:visible;}
+  .chart-xlabels{
+    display:flex;
+    justify-content:space-between;
+    font-family:'Orbitron', sans-serif;
+    font-size:9.5px;
+    color:var(--dim);
+    padding:4px 4px 0;
+  }
+
+  .compare-card{
+    display:flex;
+    align-items:center;
+    background:var(--bg3);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:14px 16px;
+    gap:10px;
+  }
+  .compare-col{flex:1;text-align:center;}
+  .compare-col .num{
+    font-size:19px;
+    font-weight:800;
+    color:var(--ink);
+    display:block;
+  }
+  .compare-col .lbl{font-size:10.5px;color:var(--dim);margin-top:2px;}
+  .compare-arrow{
+    font-family:'Orbitron', sans-serif;
+    font-weight:800;
+    font-size:13px;
+    padding:6px 10px;
+    border-radius:20px;
+    flex-shrink:0;
+  }
+  .compare-arrow.up{background:rgba(76,201,240,0.15);color:var(--day);}
+  .compare-arrow.down{background:rgba(247,37,133,0.15);color:var(--night);}
+  .compare-arrow.flat{background:rgba(255,255,255,0.08);color:var(--dim);}
+
+  .weekday-bars{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:6px;
+    height:90px;
+    background:var(--bg3);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:14px 12px 8px;
+  }
+  .weekday-col{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:flex-end;
+    height:100%;
+    gap:5px;
+  }
+  .weekday-bar{
+    width:100%;
+    max-width:22px;
+    border-radius:5px 5px 3px 3px;
+    background:linear-gradient(180deg, #4CC9F0, #9D4EDD);
+    min-height:3px;
+  }
+  .weekday-bar.best{box-shadow:0 0 8px rgba(255,201,60,0.6);background:linear-gradient(180deg, #FFC93C, #F79824);}
+  .weekday-label{font-size:10px;color:var(--dim);}
+
+  .streak-cards{
+    display:flex;
+    gap:10px;
+  }
+  .streak-card{
+    flex:1;
+    background:var(--bg3);
+    border:1.5px solid var(--line);
+    border-radius:16px;
+    padding:14px;
+    text-align:center;
+  }
+  .streak-card .num{
+    font-size:22px;
+    font-weight:800;
+    color:var(--ink);
+    display:block;
+  }
+  .streak-card .lbl{font-size:11px;color:var(--dim);margin-top:3px;}
+  .streak-card.current .num{color:var(--gold);text-shadow:0 0 10px rgba(255,201,60,0.5);}
+  .streak-card.best .num{color:var(--day);text-shadow:0 0 10px rgba(76,201,240,0.5);}
+
+  .xp-toast{
+    position:fixed;
+    top:24px;
+    left:50%;
+    transform:translateX(-50%) translateY(-20px);
+    background:linear-gradient(135deg, #FFC93C, #F72585);
+    color:#0B0E1A;
+    font-family:'Kanit', sans-serif;
+    font-weight:800;
+    font-size:14px;
+    padding:12px 22px;
+    border-radius:30px;
+    box-shadow:0 0 24px rgba(255,201,60,0.6);
+    z-index:100;
+    opacity:0;
+    transition:all .35s ease;
+    white-space:nowrap;
+  }
+  .xp-toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+  ::selection{background:var(--dusk);color:#fff;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="streak-badge" id="streakBadge"><span>🔥</span><span class="num" id="streakNum">0</span></div>
+    <button class="stats-btn" id="openStats" type="button" title="บันทึกนักผจญภัย">🏆</button>
+  </div>
+
+  <div class="level-card">
+    <div class="level-orb"><span id="levelNum">1</span></div>
+    <div class="level-body">
+      <div class="level-name">นักผจญภัยเลเวล <span id="levelNum2">1</span></div>
+      <div class="xp-track"><div class="xp-fill" id="xpFill"></div></div>
+      <div class="xp-label" id="xpLabel">0 / 100 XP</div>
+    </div>
+  </div>
+
+  <div class="date-row">
+    <div class="date-label" id="dateLabel">—</div>
+    <div class="greeting" id="greeting">เควสประจำวันนี้</div>
+  </div>
+
+  <div class="arc-wrap">
+    <svg viewBox="0 0 280 150">
+      <defs>
+        <linearGradient id="sunGrad" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#4CC9F0"/>
+          <stop offset="55%" stop-color="#9D4EDD"/>
+          <stop offset="100%" stop-color="#F72585"/>
+        </linearGradient>
+      </defs>
+      <path class="arc-track" d="M 20 140 A 120 120 0 0 1 260 140"/>
+      <path class="arc-fill" id="arcFill" d="M 20 140 A 120 120 0 0 1 260 140" stroke="url(#sunGrad)"/>
+      <circle id="sunDot" r="7" fill="#fff" stroke="#9D4EDD" stroke-width="2"/>
+    </svg>
+    <div class="arc-center">
+      <div class="arc-pct" id="pctLabel">0%</div>
+      <div class="arc-sub" id="pctSub">ยังไม่มีเควส</div>
+    </div>
+  </div>
+
+  <form class="add-form" id="addForm">
+    <input type="text" id="taskInput" placeholder="เพิ่มเควสใหม่ เช่น ดื่มน้ำตอนตื่นนอน" maxlength="80" autocomplete="off">
+    <button type="submit">+</button>
+  </form>
+  <button type="button" class="goal-toggle" id="goalToggle">🎯 ตั้งเป้าหมายเป็นจำนวน (เช่น หน้า, แก้ว, นาที)</button>
+  <div class="goal-fields" id="goalFields">
+    <input type="number" class="g-target" id="goalTarget" placeholder="จำนวน" min="1" inputmode="numeric">
+    <input type="text" class="g-unit" id="goalUnit" placeholder="หน่วย เช่น หน้า, แก้ว, นาที" maxlength="20">
+  </div>
+  <div class="period-picker" id="periodPicker">
+    <div class="period-chip" data-period="เช้า">เช้า</div>
+    <div class="period-chip" data-period="บ่าย">บ่าย</div>
+    <div class="period-chip" data-period="เย็น">เย็น</div>
+    <div class="period-chip" data-period="กลางคืน">กลางคืน</div>
+  </div>
+
+  <button class="suggest-btn" id="openSuggest" type="button">⚔️ รับเควสแนะนำ</button>
+
+  <div id="listArea"></div>
+</div>
+
+<div class="xp-toast" id="xpToast"></div>
+
+<div class="sheet-overlay" id="sheetOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-title">เควสแนะนำ</div>
+      <button class="sheet-close" id="closeSuggest" type="button">✕</button>
+    </div>
+    <div class="sheet-list" id="suggestList"></div>
+  </div>
+</div>
+
+<div class="sheet-overlay" id="statsOverlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-title">บันทึกนักผจญภัย</div>
+      <button class="sheet-close" id="closeStats" type="button">✕</button>
+    </div>
+    <div class="stats-main" id="statsMain">
+      <div class="stats-summary" id="statsSummary"></div>
+      <div class="month-nav">
+        <button type="button" id="prevMonth">‹</button>
+        <div class="month-label" id="monthLabel">—</div>
+        <button type="button" id="nextMonth">›</button>
+      </div>
+      <div class="stat-tabs">
+        <button class="stat-tab active" data-tab="calendar" id="tabCalendar" type="button">ปฏิทิน</button>
+        <button class="stat-tab" data-tab="activity" id="tabActivity" type="button">รายกิจกรรม</button>
+        <button class="stat-tab" data-tab="trend" id="tabTrend" type="button">แนวโน้ม</button>
+      </div>
+      <div class="sheet-body" id="calendarBody">
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-hint">แตะวันที่เพื่อดูรายละเอียด</div>
+      </div>
+      <div class="sheet-body" id="activityBody" style="display:none;">
+        <div id="activityList"></div>
+      </div>
+      <div class="sheet-body" id="trendBody" style="display:none;">
+        <div id="trendContent"></div>
+      </div>
+    </div>
+    <div class="day-view" id="dayView">
+      <div class="day-view-head">
+        <button class="day-back" id="dayBack" type="button">‹ ปฏิทิน</button>
+        <div class="day-view-title" id="dayViewTitle">—</div>
+      </div>
+      <div class="day-view-summary" id="dayViewSummary"></div>
+      <div class="day-view-list" id="dayViewList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUGGESTED = [
+  { icon:"⏰", name:"ตื่นเช้า", desc:"เพิ่มชั่วโมงพิเศษให้วันของคุณ", period:"เช้า" },
+  { icon:"🛏️", name:"จัดเตียง", desc:"เริ่มวันอย่างถูกต้อง", period:"เช้า" },
+  { icon:"💧", name:"ดื่มน้ำ", desc:"น้ำทำให้ร่างกายชุ่มชื้นและช่วยล้างพิษ", period:"เช้า", target:8, unit:"แก้ว" },
+  { icon:"🦷", name:"แปรงฟันและขัดฟัน", desc:"รักษาสุขภาพเหงือกและฟัน", period:"เช้า" },
+  { icon:"🍴", name:"กินอาหารที่มีประโยชน์", desc:"อาหารที่สมดุลให้ทั้งพลังงานและสุขภาพที่ดี", period:"บ่าย" },
+  { icon:"🍅", name:"โฟกัสด้วย Pomodoro", desc:"ทำงานให้เสร็จได้มากขึ้นด้วยตัวจับเวลา", period:"บ่าย", target:25, unit:"นาที" },
+  { icon:"💻", name:"เรียนออนไลน์", desc:"โลกแห่งการค้นพบใหม่ ๆ รออยู่", period:"บ่าย", target:25, unit:"นาที" },
+  { icon:"🌍", name:"เรียนภาษาใหม่", desc:"สร้างโอกาสทางวิชาชีพ", period:"บ่าย", target:25, unit:"นาที" },
+  { icon:"📖", name:"อ่าน", desc:"การอ่านช่วยเปิดโลก", period:"เย็น", target:20, unit:"หน้า" },
+  { icon:"💪", name:"ออกกำลังกาย", desc:"ชาร์จแบตเตอรี่ของคุณ", period:"เย็น", target:30, unit:"นาที" },
+  { icon:"🌲", name:"ออกไปเดิน", desc:"การเดินทำให้กระดูกแข็งแรงและอารมณ์ดีขึ้น", period:"เย็น", target:30, unit:"นาที" },
+  { icon:"☯️", name:"ทำสมาธิ", desc:"หาความสงบภายใน", period:"กลางคืน", target:10, unit:"นาที" },
+  { icon:"🕐", name:"นอน 8 ชั่วโมง", desc:"ร่างกายคุณจะรู้สึกขอบคุณ", period:"กลางคืน", target:8, unit:"ชั่วโมง" },
+];
+
+const STORAGE_PREFIX = "daily-routine:";
+const hasClaudeStorage = (typeof window.storage !== "undefined") && window.storage !== null;
+
+async function storageGet(key){
+  if(hasClaudeStorage){
+    try{ return await window.storage.get(key); }
+    catch(e){ return null; }
+  }
+  try{
+    const v = localStorage.getItem(STORAGE_PREFIX+key);
+    return v !== null ? { key, value: v } : null;
+  }catch(e){ return null; }
+}
+async function storageSet(key, value){
+  if(hasClaudeStorage){
+    try{ return await window.storage.set(key, value); }
+    catch(e){ return null; }
+  }
+  try{
+    localStorage.setItem(STORAGE_PREFIX+key, value);
+    return { key, value };
+  }catch(e){ return null; }
+}
+
+const PERIODS = ["เช้า","บ่าย","เย็น","กลางคืน"];
+let selectedPeriod = "เช้า";
+let routines = [];
+let progressToday = {};
+let manualDone = {};
+let historyData = {};
+let todayKey = "";
+let statsMonth = new Date();
+let totalXp = 0;
+
+function isDone(r){
+  if(manualDone[r.id] !== undefined) return manualDone[r.id];
+  const p = progressToday[r.id] || 0;
+  return r.target ? p >= r.target : p >= 1;
+}
+
+function calcLevel(xp){ return Math.floor(xp/100) + 1; }
+function xpIntoLevel(xp){ return ((xp % 100) + 100) % 100; }
+
+function renderLevelHUD(){
+  const lvl = calcLevel(totalXp);
+  const inLvl = xpIntoLevel(totalXp);
+  document.getElementById("levelNum").textContent = lvl;
+  document.getElementById("levelNum2").textContent = lvl;
+  document.getElementById("xpFill").style.width = inLvl + "%";
+  document.getElementById("xpLabel").textContent = inLvl + " / 100 XP";
+}
+
+function showXpToast(msg){
+  const toast = document.getElementById("xpToast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  clearTimeout(showXpToast._t);
+  showXpToast._t = setTimeout(()=>{ toast.classList.remove("show"); }, 2200);
+}
+
+async function addXp(amount){
+  const prevLevel = calcLevel(totalXp);
+  totalXp = Math.max(0, totalXp + amount);
+  const newLevel = calcLevel(totalXp);
+  try{ await storageSet("totalXp", String(totalXp)); }
+  catch(e){ console.error("save xp failed", e); }
+  renderLevelHUD();
+  if(amount > 0){
+    if(newLevel > prevLevel){
+      showXpToast("🎉 เลเวลอัป! คุณคือเลเวล " + newLevel + " แล้ว");
+    }else{
+      showXpToast("+" + amount + " XP");
+    }
+  }
+}
+
+function calcStreak(){
+  let streak = 0;
+  const d = new Date();
+  while(true){
+    const key = fmtDateKey(d);
+    const rec = historyData[key];
+    if(!rec || rec.total === 0) break;
+    if(rec.pct >= 100){
+      streak++;
+      d.setDate(d.getDate() - 1);
+    }else break;
+  }
+  return streak;
+}
+
+function renderStreak(){
+  const s = calcStreak();
+  const badge = document.getElementById("streakBadge");
+  document.getElementById("streakNum").textContent = s;
+  badge.style.display = s > 0 ? "flex" : "none";
+}
+
+function fmtDateKey(d){
+  return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+}
+function fmtThaiDate(d){
+  const days=["อาทิตย์","จันทร์","อังคาร","พุธ","พฤหัสบดี","ศุกร์","เสาร์"];
+  const months=["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  return "วัน"+days[d.getDay()]+"ที่ "+d.getDate()+" "+months[d.getMonth()]+" "+(d.getFullYear()+543);
+}
+function greetingFor(d){
+  const h=d.getHours();
+  if(h<11) return "อรุณสวัสดิ์ ☀";
+  if(h<15) return "สวัสดีตอนบ่าย";
+  if(h<19) return "สวัสดีตอนเย็น";
+  return "สวัสดีตอนค่ำ";
+}
+
+async function loadData(){
+  const now = new Date();
+  todayKey = fmtDateKey(now);
+  document.getElementById("dateLabel").textContent = fmtThaiDate(now);
+  document.getElementById("greeting").textContent = greetingFor(now);
+
+  try{
+    const r = await storageGet("routines");
+    routines = r ? JSON.parse(r.value) : [];
+  }catch(e){ routines = []; }
+
+  try{
+    const c = await storageGet("progress:"+todayKey);
+    progressToday = c ? JSON.parse(c.value) : {};
+  }catch(e){ progressToday = {}; }
+
+  try{
+    const m = await storageGet("manualDone:"+todayKey);
+    manualDone = m ? JSON.parse(m.value) : {};
+  }catch(e){ manualDone = {}; }
+
+  try{
+    const h = await storageGet("history");
+    historyData = h ? JSON.parse(h.value) : {};
+  }catch(e){ historyData = {}; }
+
+  try{
+    const x = await storageGet("totalXp");
+    totalXp = x ? parseInt(x.value, 10) || 0 : 0;
+  }catch(e){ totalXp = 0; }
+
+  renderLevelHUD();
+  renderStreak();
+  render();
+}
+
+async function saveRoutines(){
+  try{ await storageSet("routines", JSON.stringify(routines)); }
+  catch(e){ console.error("save routines failed", e); }
+}
+async function saveProgress(){
+  try{ await storageSet("progress:"+todayKey, JSON.stringify(progressToday)); }
+  catch(e){ console.error("save progress failed", e); }
+}
+async function saveManualDone(){
+  try{ await storageSet("manualDone:"+todayKey, JSON.stringify(manualDone)); }
+  catch(e){ console.error("save manualDone failed", e); }
+}
+async function updateHistoryToday(){
+  const total = routines.length;
+  const done = routines.filter(isDone).length;
+  const pct = total ? Math.round((done/total)*100) : 0;
+  const items = routines.map(r=>({
+    name: r.name,
+    period: r.period,
+    done: isDone(r),
+    target: r.target || null,
+    unit: r.unit || null,
+    progress: r.target ? (progressToday[r.id] || 0) : null
+  }));
+  historyData[todayKey] = { done, total, pct, items };
+  try{ await storageSet("history", JSON.stringify(historyData)); }
+  catch(e){ console.error("save history failed", e); }
+}
+
+function render(){
+  const total = routines.length;
+  const done = routines.filter(isDone).length;
+  const pct = total ? Math.round((done/total)*100) : 0;
+
+  document.getElementById("pctLabel").textContent = pct+"%";
+  document.getElementById("pctSub").textContent = total ? (done+" จาก "+total+" เควสสำเร็จ") : "ยังไม่มีเควส";
+
+  const arcFill = document.getElementById("arcFill");
+  const len = arcFill.getTotalLength();
+  arcFill.style.strokeDasharray = len;
+  arcFill.style.strokeDashoffset = len - (len*pct/100);
+
+  const sunDot = document.getElementById("sunDot");
+  const trackPath = document.querySelector(".arc-track");
+  const dotPos = trackPath.getPointAtLength(trackPath.getTotalLength() * (pct/100));
+  sunDot.setAttribute("cx", dotPos.x);
+  sunDot.setAttribute("cy", dotPos.y);
+
+  renderStreak();
+
+  const listArea = document.getElementById("listArea");
+  listArea.innerHTML = "";
+
+  if(total === 0){
+    listArea.innerHTML = '<div class="empty"><div class="empty-title">ยังไม่มีเควส</div>เริ่มสร้างเควสแรกของคุณเลย!</div>';
+    return;
+  }
+
+  PERIODS.forEach(period=>{
+    const items = routines.filter(r=>r.period===period);
+    if(items.length===0) return;
+    const section = document.createElement("div");
+    section.className = "section";
+    const doneCount = items.filter(isDone).length;
+    section.innerHTML = `
+      <div class="section-head">
+        <div class="section-dot ${period}"></div>
+        <div class="section-title">${period}</div>
+        <div class="section-count">${doneCount}/${items.length}</div>
+      </div>
+    `;
+    items.forEach(r=>{
+      const done = isDone(r);
+      const item = document.createElement("div");
+      if(r.target){
+        const p = progressToday[r.id] || 0;
+        item.className = "item goal"+(done?" done":"");
+        item.innerHTML = `
+          <div class="check-mark ${done?"checked":""}" data-id="${r.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="item-name">${escapeHtml(r.name)}</div>
+          <div class="stepper">
+            <button class="step-btn minus" data-id="${r.id}">−</button>
+            <div class="step-value">${p}<span class="step-unit">/${r.target} ${escapeHtml(r.unit||"")}</span></div>
+            <button class="step-btn plus" data-id="${r.id}" data-step="${r.step||1}">+</button>
+          </div>
+          <button class="del-btn" data-id="${r.id}">✕</button>
+        `;
+      }else{
+        item.className = "item"+(done?" done":"");
+        item.innerHTML = `
+          <div class="checkbox ${done?"checked":""}" data-id="${r.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <div class="item-name">${escapeHtml(r.name)}</div>
+          <button class="del-btn" data-id="${r.id}">✕</button>
+        `;
+      }
+      section.appendChild(item);
+    });
+    listArea.appendChild(section);
+  });
+
+  document.querySelectorAll(".checkbox").forEach(cb=>{
+    cb.addEventListener("click", async ()=>{
+      const id = cb.getAttribute("data-id");
+      const r = routines.find(x=>x.id===id);
+      const prevDone = isDone(r);
+      manualDone[id] = !prevDone;
+      await saveManualDone();
+      await updateHistoryToday();
+      await addXp(prevDone ? -10 : 10);
+      render();
+    });
+  });
+  document.querySelectorAll(".check-mark").forEach(cb=>{
+    cb.addEventListener("click", async ()=>{
+      const id = cb.getAttribute("data-id");
+      const r = routines.find(x=>x.id===id);
+      const prevDone = isDone(r);
+      manualDone[id] = !prevDone;
+      await saveManualDone();
+      await updateHistoryToday();
+      await addXp(prevDone ? -10 : 10);
+      render();
+    });
+  });
+  document.querySelectorAll(".step-btn.plus").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-id");
+      const r = routines.find(x=>x.id===id);
+      const step = parseInt(btn.getAttribute("data-step"),10) || 1;
+      const prevDone = isDone(r);
+      progressToday[id] = (progressToday[id] || 0) + step;
+      delete manualDone[id];
+      await saveProgress();
+      await saveManualDone();
+      await updateHistoryToday();
+      const newDone = isDone(r);
+      if(!prevDone && newDone) await addXp(10);
+      render();
+    });
+  });
+  document.querySelectorAll(".step-btn.minus").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-id");
+      const r = routines.find(x=>x.id===id);
+      const step = (r && r.step) || 1;
+      const prevDone = isDone(r);
+      progressToday[id] = Math.max(0, (progressToday[id] || 0) - step);
+      delete manualDone[id];
+      await saveProgress();
+      await saveManualDone();
+      await updateHistoryToday();
+      const newDone = isDone(r);
+      if(prevDone && !newDone) await addXp(-10);
+      render();
+    });
+  });
+  document.querySelectorAll(".del-btn").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      const id = btn.getAttribute("data-id");
+      const r = routines.find(x=>x.id===id);
+      const wasDone = r ? isDone(r) : false;
+      routines = routines.filter(x=>x.id!==id);
+      delete progressToday[id];
+      delete manualDone[id];
+      await saveRoutines();
+      await saveProgress();
+      await saveManualDone();
+      await updateHistoryToday();
+      if(wasDone) await addXp(-10);
+      render();
+    });
+  });
+}
+
+function escapeHtml(s){
+  const d = document.createElement("div");
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+document.getElementById("periodPicker").addEventListener("click",(e)=>{
+  const chip = e.target.closest(".period-chip");
+  if(!chip) return;
+  selectedPeriod = chip.getAttribute("data-period");
+  document.querySelectorAll(".period-chip").forEach(c=>c.classList.toggle("active", c===chip));
+});
+
+document.getElementById("goalToggle").addEventListener("click", ()=>{
+  document.getElementById("goalFields").classList.toggle("open");
+});
+
+document.getElementById("addForm").addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const input = document.getElementById("taskInput");
+  const name = input.value.trim();
+  if(!name) return;
+
+  const targetVal = parseInt(document.getElementById("goalTarget").value, 10);
+  const unitVal = document.getElementById("goalUnit").value.trim();
+  const newRoutine = { id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name, period: selectedPeriod, createdAt: Date.now() };
+  if(targetVal > 0 && unitVal){
+    newRoutine.target = targetVal;
+    newRoutine.unit = unitVal;
+    newRoutine.step = unitVal.includes("นาที") ? 5 : 1;
+  }
+  routines.push(newRoutine);
+
+  input.value = "";
+  document.getElementById("goalTarget").value = "";
+  document.getElementById("goalUnit").value = "";
+  document.getElementById("goalFields").classList.remove("open");
+
+  await saveRoutines();
+  await updateHistoryToday();
+  render();
+});
+
+function renderSuggestions(){
+  const list = document.getElementById("suggestList");
+  list.innerHTML = "";
+  SUGGESTED.forEach((s, idx)=>{
+    const alreadyAdded = routines.some(r=>r.name===s.name);
+    const row = document.createElement("div");
+    row.className = "suggest-item";
+    const descText = s.target ? `เป้าหมาย ${s.target} ${s.unit} · ${s.desc}` : s.desc;
+    row.innerHTML = `
+      <div class="suggest-icon">${s.icon}</div>
+      <div class="suggest-text">
+        <div class="suggest-name">${escapeHtml(s.name)}</div>
+        <div class="suggest-desc">${escapeHtml(descText)}</div>
+      </div>
+      <button class="suggest-add ${alreadyAdded?"added":""}" data-idx="${idx}">${alreadyAdded?"✓":"+"}</button>
+    `;
+    list.appendChild(row);
+  });
+  document.querySelectorAll(".suggest-add").forEach(btn=>{
+    btn.addEventListener("click", async ()=>{
+      if(btn.classList.contains("added")) return;
+      const s = SUGGESTED[parseInt(btn.getAttribute("data-idx"),10)];
+      const newRoutine = { id: Date.now().toString(36)+Math.random().toString(36).slice(2,6), name:s.name, period:s.period, createdAt: Date.now() };
+      if(s.target){
+        newRoutine.target = s.target;
+        newRoutine.unit = s.unit;
+        newRoutine.step = s.unit.includes("นาที") ? 5 : 1;
+      }
+      routines.push(newRoutine);
+      await saveRoutines();
+      await updateHistoryToday();
+      btn.classList.add("added");
+      btn.textContent = "✓";
+      render();
+    });
+  });
+}
+
+document.getElementById("openSuggest").addEventListener("click", ()=>{
+  renderSuggestions();
+  document.getElementById("sheetOverlay").classList.add("open");
+});
+document.getElementById("closeSuggest").addEventListener("click", ()=>{
+  document.getElementById("sheetOverlay").classList.remove("open");
+});
+document.getElementById("sheetOverlay").addEventListener("click", (e)=>{
+  if(e.target.id === "sheetOverlay") e.currentTarget.classList.remove("open");
+});
+
+function pctBg(pct){
+  if(pct <= 0) return "#fff";
+  const alpha = 0.14 + (pct/100)*0.72;
+  return `rgba(139,111,158,${alpha.toFixed(2)})`;
+}
+
+function renderStatsSheet(){
+  const y = statsMonth.getFullYear();
+  const m = statsMonth.getMonth();
+  const monthsTh=["มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน","กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+  document.getElementById("monthLabel").textContent = monthsTh[m]+" "+(y+543);
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const grid = document.getElementById("calGrid");
+  grid.innerHTML = "";
+
+  ["อา","จ","อ","พ","พฤ","ศ","ส"].forEach(d=>{
+    const lbl = document.createElement("div");
+    lbl.className = "cal-daylabel";
+    lbl.textContent = d;
+    grid.appendChild(lbl);
+  });
+
+  for(let i=0;i<firstDay;i++){
+    const empty = document.createElement("div");
+    empty.className = "cal-cell empty";
+    grid.appendChild(empty);
+  }
+
+  const now = new Date();
+  let sumPct = 0, countedDays = 0, bestPct = 0;
+
+  for(let day=1; day<=daysInMonth; day++){
+    const dateObj = new Date(y, m, day);
+    const key = fmtDateKey(dateObj);
+    const rec = historyData[key];
+    const isFuture = dateObj > now;
+    const cell = document.createElement("div");
+    cell.className = "cal-cell"+(isFuture?" future":"")+(key===todayKey?" today":"");
+    cell.textContent = day;
+    if(rec){
+      cell.style.background = pctBg(rec.pct);
+      sumPct += rec.pct;
+      countedDays++;
+      if(rec.pct > bestPct) bestPct = rec.pct;
+    }
+    if(!isFuture){
+      cell.addEventListener("click", ()=>{
+        showDayView(dateObj, key, rec);
+      });
+    }
+    grid.appendChild(cell);
+  }
+
+  const avgPct = countedDays ? Math.round(sumPct/countedDays) : 0;
+  document.getElementById("statsSummary").innerHTML = `
+    <div><div class="stat-num">${avgPct}%</div><div class="stat-label">เฉลี่ยเดือนนี้</div></div>
+    <div><div class="stat-num">${countedDays}</div><div class="stat-label">วันที่มีข้อมูล</div></div>
+    <div><div class="stat-num">${bestPct}%</div><div class="stat-label">ดีที่สุด</div></div>
+  `;
+
+  renderActivityStats(y, m, daysInMonth);
+  renderTrendTab(y, m, daysInMonth, avgPct, countedDays);
+}
+
+function renderActivityStats(y, m, daysInMonth){
+  const stats = {}; // name -> {done, total, period}
+  for(let day=1; day<=daysInMonth; day++){
+    const key = fmtDateKey(new Date(y, m, day));
+    const rec = historyData[key];
+    if(!rec || !rec.items) continue;
+    rec.items.forEach(it=>{
+      if(!stats[it.name]) stats[it.name] = { done:0, total:0, period: it.period };
+      stats[it.name].total++;
+      if(it.done) stats[it.name].done++;
+    });
+  }
+
+  const list = document.getElementById("activityList");
+  const names = Object.keys(stats);
+
+  if(names.length === 0){
+    list.innerHTML = '<div class="day-empty">ยังไม่มีข้อมูลกิจกรรมในเดือนนี้</div>';
+    return;
+  }
+
+  list.innerHTML = "";
+  PERIODS.forEach(period=>{
+    const periodNames = names.filter(n=>stats[n].period===period)
+      .sort((a,b)=> (stats[b].done/stats[b].total) - (stats[a].done/stats[a].total));
+    if(periodNames.length===0) return;
+
+    const head = document.createElement("div");
+    head.className = "section-head";
+    head.innerHTML = `<div class="section-dot ${period}"></div><div class="section-title">${period}</div>`;
+    list.appendChild(head);
+
+    periodNames.forEach(name=>{
+      const s = stats[name];
+      const pct = s.total ? Math.round((s.done/s.total)*100) : 0;
+      const row = document.createElement("div");
+      row.className = "activity-row";
+      row.innerHTML = `
+        <div class="activity-top">
+          <div class="activity-name">${escapeHtml(name)}</div>
+          <div class="activity-pct">${pct}%</div>
+        </div>
+        <div class="activity-bar"><div class="activity-bar-fill" style="width:${pct}%"></div></div>
+        <div class="activity-count">ทำสำเร็จ ${s.done} จาก ${s.total} วันที่มีข้อมูล</div>
+      `;
+      list.appendChild(row);
+    });
+  });
+}
+
+function calcBestStreakEver(){
+  const keys = Object.keys(historyData).sort();
+  let best = 0, cur = 0, prevDate = null;
+  keys.forEach(k=>{
+    const rec = historyData[k];
+    const qualifies = rec && rec.total > 0 && rec.pct >= 100;
+    if(qualifies){
+      const d = new Date(k+"T00:00:00");
+      if(prevDate){
+        const diffDays = Math.round((d - prevDate) / 86400000);
+        cur = diffDays === 1 ? cur + 1 : 1;
+      }else{
+        cur = 1;
+      }
+      prevDate = d;
+      if(cur > best) best = cur;
+    }else{
+      cur = 0;
+      prevDate = null;
+    }
+  });
+  return Math.max(best, calcStreak());
+}
+
+function renderTrendTab(y, m, daysInMonth, avgPct, countedDays){
+  const container = document.getElementById("trendContent");
+  container.innerHTML = "";
+
+  // ---- 1. Success vs Fail donut ----
+  const failPct = 100 - avgPct;
+  const r = 40, cx = 48, cy = 48;
+  const circumference = 2 * Math.PI * r;
+  const dash = countedDays ? (avgPct/100)*circumference : 0;
+
+  const donutBlock = document.createElement("div");
+  donutBlock.className = "trend-block";
+  donutBlock.innerHTML = `
+    <div class="trend-block-title">สำเร็จ vs ไม่สำเร็จ (เดือนนี้)</div>
+    <div class="donut-wrap">
+      <svg class="donut-svg" viewBox="0 0 96 96">
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="rgba(247,37,133,0.18)" stroke-width="12"/>
+        <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="url(#donutGrad)" stroke-width="12"
+          stroke-linecap="round"
+          stroke-dasharray="${dash} ${circumference}"
+          transform="rotate(-90 ${cx} ${cy})"/>
+        <defs>
+          <linearGradient id="donutGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#4CC9F0"/>
+            <stop offset="100%" stop-color="#9D4EDD"/>
+          </linearGradient>
+        </defs>
+        <text x="48" y="53" text-anchor="middle" font-family="Orbitron" font-weight="800" font-size="20" fill="#EDEFFB">${countedDays?avgPct:0}%</text>
+      </svg>
+      <div class="donut-legend">
+        <div class="legend-row"><span class="legend-dot ok"></span>สำเร็จ<span class="num">${countedDays?avgPct:0}%</span></div>
+        <div class="legend-row"><span class="legend-dot fail"></span>ไม่สำเร็จ<span class="num">${countedDays?failPct:0}%</span></div>
+      </div>
+    </div>
+  `;
+  container.appendChild(donutBlock);
+
+  // ---- 2. Daily trend line chart ----
+  const points = [];
+  for(let day=1; day<=daysInMonth; day++){
+    const key = fmtDateKey(new Date(y, m, day));
+    const rec = historyData[key];
+    if(rec) points.push({ day, pct: rec.pct });
+  }
+
+  const chartBlock = document.createElement("div");
+  chartBlock.className = "trend-block";
+  if(points.length >= 2){
+    const w = 300, h = 100, pad = 6;
+    const xStep = (w - pad*2) / (points.length - 1);
+    const coords = points.map((p,i)=>({
+      x: pad + i*xStep,
+      y: pad + (h - pad*2) * (1 - p.pct/100)
+    }));
+    const linePath = coords.map((c,i)=> (i===0?"M":"L") + c.x.toFixed(1) + " " + c.y.toFixed(1)).join(" ");
+    const areaPath = linePath + ` L ${coords[coords.length-1].x.toFixed(1)} ${h-pad} L ${coords[0].x.toFixed(1)} ${h-pad} Z`;
+    const dots = coords.map((c,i)=>{
+      const isToday = fmtDateKey(new Date(y, m, points[i].day)) === todayKey;
+      return `<circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${isToday?4:2.5}" fill="${isToday?'#FFC93C':'#4CC9F0'}" ${isToday?'style="filter:drop-shadow(0 0 4px rgba(255,201,60,0.8))"':''}/>`;
+    }).join("");
+
+    chartBlock.innerHTML = `
+      <div class="trend-block-title">แนวโน้มรายวัน (เดือนนี้)</div>
+      <div class="chart-wrap">
+        <svg viewBox="0 0 300 100">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#9D4EDD" stop-opacity="0.35"/>
+              <stop offset="100%" stop-color="#9D4EDD" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <line x1="6" y1="6" x2="294" y2="6" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <line x1="6" y1="50" x2="294" y2="50" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <line x1="6" y1="94" x2="294" y2="94" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>
+          <path d="${areaPath}" fill="url(#areaGrad)"/>
+          <path d="${linePath}" fill="none" stroke="#4CC9F0" stroke-width="2.5" stroke-linejoin="round" style="filter:drop-shadow(0 0 4px rgba(76,201,240,0.6))"/>
+          ${dots}
+        </svg>
+        <div class="chart-xlabels"><span>${points[0].day}</span><span>${points[Math.floor(points.length/2)].day}</span><span>${points[points.length-1].day}</span></div>
+      </div>
+    `;
+  }else{
+    chartBlock.innerHTML = `
+      <div class="trend-block-title">แนวโน้มรายวัน (เดือนนี้)</div>
+      <div class="chart-wrap"><div class="day-empty">ต้องมีข้อมูลอย่างน้อย 2 วันถึงจะวาดกราฟได้</div></div>
+    `;
+  }
+  container.appendChild(chartBlock);
+
+  // ---- 3. Month-over-month comparison ----
+  const prevMonthDate = new Date(y, m-1, 1);
+  const py = prevMonthDate.getFullYear(), pm = prevMonthDate.getMonth();
+  const prevDaysInMonth = new Date(py, pm+1, 0).getDate();
+  let prevSum = 0, prevCount = 0;
+  for(let day=1; day<=prevDaysInMonth; day++){
+    const key = fmtDateKey(new Date(py, pm, day));
+    const rec = historyData[key];
+    if(rec){ prevSum += rec.pct; prevCount++; }
+  }
+  const prevAvg = prevCount ? Math.round(prevSum/prevCount) : null;
+  const curAvg = countedDays ? avgPct : 0;
+  let arrowHtml = '<div class="compare-arrow flat">—</div>';
+  if(prevAvg !== null && countedDays){
+    const diff = curAvg - prevAvg;
+    if(diff > 0) arrowHtml = `<div class="compare-arrow up">▲ +${diff}%</div>`;
+    else if(diff < 0) arrowHtml = `<div class="compare-arrow down">▼ ${diff}%</div>`;
+    else arrowHtml = '<div class="compare-arrow flat">— 0%</div>';
+  }
+  const compareBlock = document.createElement("div");
+  compareBlock.className = "trend-block";
+  compareBlock.innerHTML = `
+    <div class="trend-block-title">เทียบกับเดือนก่อน</div>
+    <div class="compare-card">
+      <div class="compare-col"><span class="num">${prevAvg===null?"—":prevAvg+"%"}</span><span class="lbl">เดือนก่อน</span></div>
+      ${arrowHtml}
+      <div class="compare-col"><span class="num">${countedDays?curAvg+"%":"—"}</span><span class="lbl">เดือนนี้</span></div>
+    </div>
+  `;
+  container.appendChild(compareBlock);
+
+  // ---- 4. Weekday performance ----
+  const weekdaySum = [0,0,0,0,0,0,0];
+  const weekdayCount = [0,0,0,0,0,0,0];
+  for(let day=1; day<=daysInMonth; day++){
+    const dateObj = new Date(y, m, day);
+    const key = fmtDateKey(dateObj);
+    const rec = historyData[key];
+    if(rec){
+      const wd = dateObj.getDay();
+      weekdaySum[wd] += rec.pct;
+      weekdayCount[wd]++;
+    }
+  }
+  const weekdayAvg = weekdaySum.map((sum,i)=> weekdayCount[i] ? Math.round(sum/weekdayCount[i]) : 0);
+  const maxAvg = Math.max(...weekdayAvg);
+  const wdLabels = ["อา","จ","อ","พ","พฤ","ศ","ส"];
+  const bars = weekdayAvg.map((pct,i)=>`
+    <div class="weekday-col">
+      <div class="weekday-bar${pct===maxAvg && pct>0 ? " best":""}" style="height:${Math.max(pct,3)}%"></div>
+      <div class="weekday-label">${wdLabels[i]}</div>
+    </div>
+  `).join("");
+  const weekdayBlock = document.createElement("div");
+  weekdayBlock.className = "trend-block";
+  weekdayBlock.innerHTML = `
+    <div class="trend-block-title">เฉลี่ยตามวันในสัปดาห์ (เดือนนี้)</div>
+    <div class="weekday-bars">${bars}</div>
+  `;
+  container.appendChild(weekdayBlock);
+
+  // ---- 5. Streak comparison ----
+  const curStreak = calcStreak();
+  const bestStreak = calcBestStreakEver();
+  const streakBlock = document.createElement("div");
+  streakBlock.className = "trend-block";
+  streakBlock.innerHTML = `
+    <div class="trend-block-title">สตรีค</div>
+    <div class="streak-cards">
+      <div class="streak-card current"><span class="num">🔥 ${curStreak}</span><span class="lbl">สตรีคปัจจุบัน</span></div>
+      <div class="streak-card best"><span class="num">🏆 ${bestStreak}</span><span class="lbl">สตรีคสูงสุด</span></div>
+    </div>
+  `;
+  container.appendChild(streakBlock);
+}
+
+document.querySelectorAll(".stat-tab").forEach(tab=>{
+  tab.addEventListener("click", ()=>{
+    document.querySelectorAll(".stat-tab").forEach(t=>t.classList.remove("active"));
+    tab.classList.add("active");
+    const target = tab.getAttribute("data-tab");
+    document.getElementById("calendarBody").style.display = target==="calendar" ? "block" : "none";
+    document.getElementById("activityBody").style.display = target==="activity" ? "block" : "none";
+    document.getElementById("trendBody").style.display = target==="trend" ? "block" : "none";
+  });
+});
+
+function showDayView(dateObj, key, rec){
+  document.getElementById("dayViewTitle").textContent = fmtThaiDate(dateObj);
+  const summaryEl = document.getElementById("dayViewSummary");
+  const listEl = document.getElementById("dayViewList");
+  listEl.innerHTML = "";
+
+  if(rec && rec.items && rec.items.length){
+    summaryEl.textContent = rec.pct+"% สำเร็จ ("+rec.done+"/"+rec.total+" อย่าง)";
+    PERIODS.forEach(period=>{
+      const items = rec.items.filter(it=>it.period===period);
+      if(items.length===0) return;
+      items.forEach(it=>{
+        const row = document.createElement("div");
+        row.className = "day-item"+(it.done?" done":"");
+        const status = it.target ? `${it.progress||0}/${it.target} ${escapeHtml(it.unit||"")}` : (it.done?"สำเร็จ":"ยังไม่ทำ");
+        row.innerHTML = `
+          <div class="day-item-dot ${it.done?"ok":""}"></div>
+          <div class="day-item-name">${escapeHtml(it.name)}</div>
+          <div class="day-item-status">${status}</div>
+        `;
+        listEl.appendChild(row);
+      });
+    });
+  }else if(rec){
+    summaryEl.textContent = rec.pct+"% สำเร็จ ("+rec.done+"/"+rec.total+" อย่าง)";
+    listEl.innerHTML = '<div class="day-empty">วันนี้บันทึกไว้ก่อนมีฟีเจอร์รายละเอียด จึงมีแค่ตัวเลขสรุป</div>';
+  }else{
+    summaryEl.textContent = "";
+    listEl.innerHTML = '<div class="day-empty">ยังไม่มีข้อมูลของวันนี้</div>';
+  }
+
+  document.getElementById("statsMain").style.display = "none";
+  document.getElementById("dayView").style.display = "flex";
+}
+
+document.getElementById("dayBack").addEventListener("click", ()=>{
+  document.getElementById("dayView").style.display = "none";
+  document.getElementById("statsMain").style.display = "flex";
+});
+
+document.getElementById("openStats").addEventListener("click", async ()=>{
+  await updateHistoryToday();
+  statsMonth = new Date();
+  document.getElementById("dayView").style.display = "none";
+  document.getElementById("statsMain").style.display = "flex";
+  renderStatsSheet();
+  document.getElementById("statsOverlay").classList.add("open");
+});
+document.getElementById("closeStats").addEventListener("click", ()=>{
+  document.getElementById("statsOverlay").classList.remove("open");
+  document.getElementById("dayView").style.display = "none";
+  document.getElementById("statsMain").style.display = "flex";
+});
+document.getElementById("statsOverlay").addEventListener("click", (e)=>{
+  if(e.target.id === "statsOverlay") e.currentTarget.classList.remove("open");
+});
+document.getElementById("prevMonth").addEventListener("click", ()=>{
+  statsMonth = new Date(statsMonth.getFullYear(), statsMonth.getMonth()-1, 1);
+  renderStatsSheet();
+});
+document.getElementById("nextMonth").addEventListener("click", ()=>{
+  const candidate = new Date(statsMonth.getFullYear(), statsMonth.getMonth()+1, 1);
+  if(candidate <= new Date()) { statsMonth = candidate; renderStatsSheet(); }
+});
+
+// init default active chip
+document.querySelector('.period-chip[data-period="เช้า"]').classList.add("active");
+
+loadData();
+</script>
+</body>
+</html>
